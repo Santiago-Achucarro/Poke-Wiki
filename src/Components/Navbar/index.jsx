@@ -2,32 +2,26 @@ import React from "react";
 import {
   HStack,
   Box,
-  Img,
-  Text,
   Link,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
   MenuDivider,
   IconButton,
   Stack,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
-import { HamburgerIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
-import PokeLogo from "../../assets/Poke-Logo.png";
+import { HamburgerIcon } from "@chakra-ui/icons";
 
 const Navbar = () => {
   return (
-    <HStack display="flex" alignItems="center" justifyContent='center'>
-        <Box>
-          <Link fontSize='3xl' fontWeight='semibold'>
-           Poke-Wiki
-          </Link>
-        </Box>
+    <HStack display="flex" alignItems="center" justifyContent="center">
+      <Box>
+        <Link fontSize="3xl" fontWeight="semibold">
+          Poke-Wiki
+        </Link>
+      </Box>
 
       <Stack
         direction={{ base: "row" }}
@@ -35,7 +29,8 @@ const Navbar = () => {
         fontSize="20px"
       >
         <NavLink to="/">Home</NavLink>
-        <NavLink to="/Wiki">Wiki</NavLink>
+        <NavLink to="/wiki">Wiki</NavLink>
+        <NavLink to="/pokedex">Pokedex</NavLink>
       </Stack>
 
       <Menu>

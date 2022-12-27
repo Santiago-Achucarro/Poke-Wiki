@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Habilidades } from "../Habilidades";
 import { Favorito } from "../Favorito";
 import styles from "./Cards.module.css";
-import { Box, Card, CardBody, Spinner, Flex, Input } from "@chakra-ui/react";
-import { useAxios } from "../../Api/useAxios";
+import { Spinner, Flex } from "@chakra-ui/react";
+import { Tipos } from "../Tipos";
+import { useFavorite } from "../../setFavorite/useFavorite";
 
-const Cards = ({ id, img, abilities, name, loading }) => {
+const Cards = ({ id, img, abilities, name, types, load }) => {
   const {
     card,
     card_img,
@@ -16,12 +17,16 @@ const Cards = ({ id, img, abilities, name, loading }) => {
     social_center,
   } = styles;
 
-  if (loading) {
+  const test = () => {
+
+  }
+
+  if (load) {
     return (
       <div className={card}>
         <div className={card_img}>
-          <Flex alignItems='center' justifyContent='center' height='100%'>
-          <Spinner size="xl"  />
+          <Flex alignItems="center" justifyContent="center" height="100%">
+            <Spinner size="xl" />
           </Flex>
         </div>
         <ul></ul>
@@ -69,6 +74,11 @@ const Cards = ({ id, img, abilities, name, loading }) => {
 
             <div className={card_info}>
               <p className={title}> {name}</p>
+              <Flex justifyContent="center">
+                {types.map((ty, index) => (
+                  <Tipos ty={ty} key={index} />
+                ))}
+              </Flex>
               <p className={subtitle}>{id}</p>
             </div>
           </div>

@@ -1,20 +1,19 @@
-import { ChakraProvider, Flex, ButtonGroup, Button } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { Navbar } from "./Components";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Contacto } from "./Views/Contacto";
 import "./App.css";
-import { Home } from "./Views/Home";
-import { Wiki } from "./Views/Wiki";
+import { Home, Wiki, Pokedex } from "./Views";
 
 function App() {
   return (
     <div className="App">
       <ChakraProvider>
         <BrowserRouter>
-        <Navbar />
+          <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/wiki" element={<Wiki />} />
+            <Route path="/pokedex" element={<Pokedex />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>

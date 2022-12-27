@@ -1,55 +1,108 @@
 import React from "react";
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { Flex, ButtonGroup, Button, Input, filter } from "@chakra-ui/react";
-import { ArrowBackIcon, ArrowForwardIcon, RepeatIcon } from "@chakra-ui/icons";
+import { Flex } from "@chakra-ui/react";
 import { Middleware } from "../Middleware";
-import { useAxios } from "../../Api/useAxios";
+import { getData, getPokemonsData } from "../../Api/api";
+import { Search } from "../Search";
+import { FilterTipos } from "../FilterTipos";
+import { Paginator } from "../Paginator";
 
 const ContactApi = () => {
-  const [pages, setPages] = useState(0);
-  const [poke, setPoke] = useAxios(`pokemon?offset=${pages}&limit=20`);
-  const [items, setItems] = useState([]);
+  const [pages, setPages] = useState(
+    `https://pokeapi.co/api/v2/pokemon?offset=0&limit=20`
+  );
+  const [next, setNext] = useState("");
+  const [prev, setPrev] = useState("");
+  const [load, setLoad] = useState(true);
+  const [total, setTotal] = useState("");
+  const [count, setCount] = useState(1);
+  const [pokemons, setPokemons] = useState([]);
+  const [searching, setSearching] = useState(false);
 
-  const filterName = (e) => {
-    const value = e.target.value;
-    const newArray = items.filter((item) =>
-      item.name.toLowerCase().includes(value)
-    );
-    value == "" ? setItems(poke) : setItems(newArray);
+  const GetPokemons = async (pages) => {
+    try {
+      setLoad(true);
+      const data = await getData(pages);
+      setTotal(Math.ceil(data.count / 20));
+      setNext(data.next);
+      setPrev(data.previous);
+      const resp = data.results.map(
+        async (pokemon) => await getPokemonsData(pokemon.url)
+      );
+      const results = await Promise.all(resp);
+      setPokemons(results);
+    } catch (error) {}
   };
+
+  const searchPokemon = async (pokemon) => {
+    if (!pokemon) {
+      return GetPokemons();
+    } else {
+      try {
+        const data = await getPokemonsData(
+          `https://pokeapi.co/api/v2/pokemon/${pokemon}`
+        );
+        if (data) {
+          setPokemons([data]);
+          setSearching(true);
+        }
+      } catch (error) {}
+    }
+  };
+
+  const reload = () => {
+    if (searching || prev !== null) {
+      setPages(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=20`);
+      setSearching(false);
+      setCount(0);
+      console.log(pages);
+    }
+  };
+
+  const filterType = async (value) => {
+    if (!value) {
+      return GetPokemons();
+    } else {
+      try {
+        const data = await getPokemonsData(
+          `https://pokeapi.co/api/v2/type/${value}`
+        );
+        const resp = data.pokemon.map(
+          async (poke) => await getPokemonsData(poke.pokemon.url)
+        );
+        const results = await Promise.all(resp);
+        const test = results;
+        const pokemon = test.splice(0, 20);
+        setPokemons(pokemon);
+        setSearching(true);
+        setTimeout(() => {
+          setLoad(false);
+        }, 1000);
+      } catch (error) {}
+    }
+  };
+
   useEffect(() => {
-    setItems(poke);
-  }, [poke]);
+    if (!searching) {
+      GetPokemons(pages);
+    }
+  }, [pages, searching]);
 
-  const reload = (e) => {
-    setItems(poke);
-  };
+  setTimeout(() => {
+    setLoad(false);
+  }, 1000);
+
+  // const test = pokemons.map(item => item.types)
+  // array.forEach(element => {
+  // });
+
   return (
     <div>
-      <Flex justifyContent="center" alignItems="center">
-        <Input
-          type="text"
-          background="blackAlpha.200"
-          width={{ base: "50%", xl: "30%" }}
-          marginBottom="25px"
-          marginTop="15px"
-          placeholder="Search for Name"
-          onChange={(e) => {
-            filterName(e);
-          }}
-        />
-        <Button
-          onClick={(e) => {
-            reload(e);
-          }}
-          marginLeft="2"
-          marginBottom="25px"
-          marginTop="15px"
-        >
-          <RepeatIcon />
-        </Button>
+      <Flex justifyContent="center" alignContent="center">
+        <Search searchPokemon={searchPokemon} reload={reload} />
       </Flex>
+
+      <FilterTipos filterType={filterType} load={load} />
       <Flex
         alignContent="center"
         justifyContent="center"
@@ -58,31 +111,18 @@ const ContactApi = () => {
         gap="5"
         textAlign="center"
       >
-        {items.map((item, index) => (
-          <Middleware key={index} pokemones={item.url} />
-        ))}
+        <Middleware pokemons={pokemons} load={load}  />
       </Flex>
-      <ButtonGroup
-        display="flex"
-        justifyContent="center"
-        marginTop="5"
-        marginBottom="5"
-      >
-        <Button
-          leftIcon={<ArrowBackIcon />}
-          onClick={() => setPages(pages - 20)}
-          disabled={pages <= 0 ? "disabled" : ""}
-        >
-          Previous
-        </Button>
 
-        <Button
-          rightIcon={<ArrowForwardIcon />}
-          onClick={() => setPages(pages + 20)}
-        >
-          Next
-        </Button>
-      </ButtonGroup>
+      <Paginator
+        setPages={setPages}
+        setCount={setCount}
+        count={count}
+        prev={prev}
+        next={next}
+        searching={searching}
+        total={total}
+      />
     </div>
   );
 };

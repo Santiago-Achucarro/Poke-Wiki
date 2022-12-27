@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 const url_initi = `https://pokeapi.co/api/v2/`;
 
 const useAxios = (endpoint) => {
-  const [poke, setPoke] = useState([]);
+  const [data, setData] = useState([]);
   const [error, setError] = useState(null)
   const firstResp = async (endpoint) => {
     try {
       const resp = await axios.get(url_initi + endpoint);
       const dataOk = resp.data;
-      setPoke(dataOk.results);
+      setData(dataOk.results);
     } catch (err) {
       setError(err.message);
     }
@@ -19,7 +19,7 @@ const useAxios = (endpoint) => {
     firstResp(endpoint);
   }, [endpoint]);
 
-  return [poke,setPoke];
+  return [data];
 };
 
 export { useAxios };
